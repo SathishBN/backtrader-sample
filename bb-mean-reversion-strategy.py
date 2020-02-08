@@ -144,13 +144,11 @@ class BBMRStrategy(bt.Strategy):
         if self.entry_order:
             if self.entry_order.status in [self.entry_order.Completed]:
                 self.log('ENTRY ORDER EXECUTED')
+                self.entry_order = None
 
         if self.profit_order:
             if self.profit_order.status in [self.profit_order.Completed]:
                 self.log('PROFIT ORDER EXECUTED')
-
-        if self.profit_order:
-            if self.profit_order.status in [self.profit_order.Completed]:
                 self.profit_order = None
 
     def notify_trade(self, trade):
@@ -209,7 +207,7 @@ if __name__ == '__main__':
     # cerebro.adddata(data)
 
     # Resample 1min to 5mins
-    cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, compression=10, boundoff=-15)
+    cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, compression=20, boundoff=-15)
 
     cerebro.broker.setcash(startcash)
 
@@ -234,4 +232,4 @@ if __name__ == '__main__':
     print('P/L: INR {}'.format(round(pnl, 2)))
 
     # Finally plot the end results
-    cerebro.plot(style='candlestick')
+    cerebro.plot(style='bar', volume=False)
