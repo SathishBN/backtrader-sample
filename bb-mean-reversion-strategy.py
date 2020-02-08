@@ -93,21 +93,19 @@ class BBMRStrategy(bt.Strategy):
             self.broker.cancel(self.profit_order)
             self.profit_order = None
 
-        # self.log('Position Size %.0f' % self.position.size)
-
         if not self.position:
             if self.data.close > self.boll.lines.top:
-                self.log('SIGNAL: Sell :  Close %.2f, BB Top %.2f' % (self.data.close[0], self.boll.lines.top[0]))
+                self.log('SIGNAL:ENTRY Sell :  Close %.2f, BB Top %.2f' % (self.data.close[0], self.boll.lines.top[0]))
                 self.entry_order = self.sell(exectype=bt.Order.Stop, price=self.boll.lines.top[0], transmit=True)
             if self.data.close < self.boll.lines.bot:
-                self.log('SIGNAL: Buy :  Close %.2f, BB Bot %.2f' % (self.data.close[0], self.boll.lines.bot[0]))
+                self.log('SIGNAL:ENTRY Buy :  Close %.2f, BB Bot %.2f' % (self.data.close[0], self.boll.lines.bot[0]))
                 self.entry_order = self.buy(exectype=bt.Order.Stop, price=self.boll.lines.bot[0], transmit=True)
         else:
             if self.position.size > 0:
-                self.log('SIGNAL:CLOSE, SELL :  BB Mid %.2f' % (self.boll.lines.mid[0]))
+                self.log('SIGNAL:EXIT, SELL :  BB Mid %.2f' % (self.boll.lines.mid[0]))
                 self.profit_order = self.sell(exectype=bt.Order.Limit, price=self.boll.lines.mid[0], transmit=True)
             else:
-                self.log('SIGNAL:CLOSE, BUY :  BB Mid %.2f' % (self.boll.lines.mid[0]))
+                self.log('SIGNAL:EXIT, BUY :  BB Mid %.2f' % (self.boll.lines.mid[0]))
                 self.profit_order = self.buy(exectype=bt.Order.Limit, price=self.boll.lines.mid[0], transmit=True)
 
     def notify_order(self, order):
@@ -144,7 +142,7 @@ class BBMRStrategy(bt.Strategy):
         if self.entry_order:
             if self.entry_order.status in [self.entry_order.Completed]:
                 self.log('ENTRY ORDER EXECUTED')
-                self.entry_order = None
+                # self.entry_order = None
 
         if self.profit_order:
             if self.profit_order.status in [self.profit_order.Completed]:
@@ -193,7 +191,7 @@ def get_data(file_name, start_date=None, end_date=None, volume=5):
 
 if __name__ == '__main__':
     # Variable for our starting cash
-    startcash = 100000
+    startcash = 500000
 
     # Create an instance of cerebro
     cerebro = bt.Cerebro()
@@ -201,6 +199,7 @@ if __name__ == '__main__':
     # Add our strategy
     cerebro.addstrategy(BBMRStrategy, debug=False)
 
+    # data = get_data('NIFTY1902', datetime.datetime(2019, 1, 29, 9, 15, 0), datetime.datetime(2019, 2, 4, 13, 30, 0))
     data = get_data('NIFTY1902', datetime.datetime(2019, 1, 29, 9, 15, 0), datetime.datetime(2019, 2, 28, 15, 30, 0))
 
     # Add the data to Cerebro
