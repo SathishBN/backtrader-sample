@@ -51,7 +51,6 @@ class BBMRStrategy(bt.Strategy):
     params = (
         ("period", 20),
         ("stddev", 2),
-        ("size", 20),
         ("debug", True)
     )
 
@@ -94,6 +93,7 @@ class BBMRStrategy(bt.Strategy):
             self.profit_order = None
 
         if not self.position:
+
             if self.data.close > self.boll.lines.top:
                 self.log('SIGNAL:ENTRY Sell :  Close %.2f, BB Top %.2f' % (self.data.close[0], self.boll.lines.top[0]))
                 self.entry_order = self.sell(exectype=bt.Order.Stop, price=self.boll.lines.top[0], transmit=True)
@@ -197,16 +197,16 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro()
 
     # Add our strategy
-    cerebro.addstrategy(BBMRStrategy, debug=False)
+    cerebro.addstrategy(BBMRStrategy, period=20, debug=False)
 
     # data = get_data('NIFTY1902', datetime.datetime(2019, 1, 29, 9, 15, 0), datetime.datetime(2019, 2, 4, 13, 30, 0))
-    data = get_data('NIFTY1902', datetime.datetime(2019, 1, 29, 9, 15, 0), datetime.datetime(2019, 2, 28, 15, 30, 0))
+    data = get_data('NIFTY1902', start_date=datetime.datetime(2019, 1, 29, 9, 15, 0), end_date=datetime.datetime(2019, 2, 28, 15, 30, 0))
 
     # Add the data to Cerebro
     # cerebro.adddata(data)
 
-    # Resample 1min to 5mins
-    cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, compression=20, boundoff=-15)
+    # Resample 1min to 15mins
+    cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, compression=60, boundoff=-15)
 
     cerebro.broker.setcash(startcash)
 
@@ -216,7 +216,6 @@ if __name__ == '__main__':
 
     # Set the commission - 0.1% ... divide by 100 to remove the %
     # cerebro.broker.setcommission(commission=0.01)
-
     cerebro.broker.setcommission(commission=75, margin=35000.0, mult=75.0)
 
     # Run over everything
